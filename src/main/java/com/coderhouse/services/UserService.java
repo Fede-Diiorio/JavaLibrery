@@ -9,6 +9,8 @@ import com.coderhouse.interfaces.DAOInterface;
 import com.coderhouse.models.User;
 import com.coderhouse.repositories.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 public class UserService implements DAOInterface<User, UserDTO> {
 
 	@Autowired
@@ -31,6 +33,7 @@ public class UserService implements DAOInterface<User, UserDTO> {
 	}
 
 	@Override
+	@Transactional
 	public UserDTO save(User object) {
 		User savedUser = userRepository.save(object);
 		validateMandatoryFields(savedUser);
@@ -38,6 +41,7 @@ public class UserService implements DAOInterface<User, UserDTO> {
 	}
 
 	@Override
+	@Transactional
 	public UserDTO update(Long id, User object) throws Exception {
 		User user = getUserById(id);
 		userRepository.save(validateUserToUpdate(user));
@@ -45,6 +49,7 @@ public class UserService implements DAOInterface<User, UserDTO> {
 	}
 
 	@Override
+	@Transactional
 	public void delete(Long id) {
 		if (!userRepository.existsById(id)) {
 			throw new IllegalArgumentException("Usuario no encontrado.");
@@ -59,10 +64,10 @@ public class UserService implements DAOInterface<User, UserDTO> {
 			throw new IllegalArgumentException("El email del usuario es olbigatorio.");
 		}
 		if (user.getName() == null || user.getName().isEmpty()) {
-			throw new IllegalArgumentException("El Nombre del usuario es olbigatorio.");
+			throw new IllegalArgumentException("El nombre del usuario es olbigatorio.");
 		}
 		if (user.getPhone() == null || user.getPhone().isEmpty()) {
-			throw new IllegalArgumentException("El Nombre del usuario es olbigatorio.");
+			throw new IllegalArgumentException("El teléfono del usuario es olbigatorio.");
 		}
 	}
 

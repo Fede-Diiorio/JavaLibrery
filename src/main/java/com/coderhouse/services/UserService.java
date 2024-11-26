@@ -16,50 +16,80 @@ public class UserService implements DAOInterface<User, UserDTO> {
 
 	@Override
 	public List<UserDTO> getAll() {
-		// TODO Auto-generated method stub
-		return null;
+		List<User> users = userRepository.findAll();
+		return users.stream().map(this::convertToDTO).toList();
 	}
 
 	@Override
 	public UserDTO getById(Long id) {
-		User user = getModelById(id);
+		User user = getUserById(id);
 		return convertToDTO(user);
 	}
 
-	@Override
-	public User getModelById(Long id) {
-		return userRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("El usuario no existe"));
+	public User getUserById(Long id) {
+		return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("El usuario no existe"));
 	}
 
 	@Override
 	public UserDTO save(User object) {
-		// TODO Auto-generated method stub
-		return null;
+		User savedUser = userRepository.save(object);
+		validateMandatoryFields(savedUser);
+		return convertToDTO(savedUser);
 	}
 
 	@Override
 	public UserDTO update(Long id, User object) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		User user = getUserById(id);
+		userRepository.save(validateUserToUpdate(user));
+		return convertToDTO(user);
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
+		if (!userRepository.existsById(id)) {
+			throw new IllegalArgumentException("Usuario no encontrado.");
+
+		}
+		userRepository.deleteById(id);
 
 	}
-	
+
+	private void validateMandatoryFields(User user) {
+		if (user.getEmail() == null || user.getEmail().isEmpty()) {
+			throw new IllegalArgumentException("El email del usuario es olbigatorio.");
+		}
+		if (user.getName() == null || user.getName().isEmpty()) {
+			throw new IllegalArgumentException("El Nombre del usuario es olbigatorio.");
+		}
+		if (user.getPhone() == null || user.getPhone().isEmpty()) {
+			throw new IllegalArgumentException("El Nombre del usuario es olbigatorio.");
+		}
+	}
+
+	private User validateUserToUpdate(User user) {
+		if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+			user.setEmail(user.getEmail());
+		}
+		if (user.getName() != null && !user.getName().isEmpty()) {
+			user.setName(user.getName());
+		}
+		if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+			user.setPhone(user.getPhone());
+		}
+
+		return user;
+	}
+
 	private UserDTO convertToDTO(User user) {
 		UserDTO userDTO = new UserDTO();
-		
+
 		userDTO.setEmail(user.getEmail());
 		userDTO.setId(user.getId());
 		userDTO.setName(user.getName());
 		userDTO.setPhone(user.getPhone());
-		
+
 		return userDTO;
-		
+
 	}
 
 }

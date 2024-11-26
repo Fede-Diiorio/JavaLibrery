@@ -8,8 +8,6 @@ public interface DAOInterface<T, resDTO> {
 
     resDTO getById(Long id);
     
-    T getModelById(Long id);
-
     resDTO save(T object);
 
     resDTO update(Long id, T object) throws Exception;

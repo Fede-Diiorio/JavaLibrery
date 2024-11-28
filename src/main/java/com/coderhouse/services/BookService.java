@@ -3,6 +3,7 @@ package com.coderhouse.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.coderhouse.dtos.BookDTO;
 import com.coderhouse.interfaces.DAOInterface;
@@ -11,6 +12,7 @@ import com.coderhouse.repositories.BookRepository;
 
 import jakarta.transaction.Transactional;
 
+@Service
 public class BookService implements DAOInterface<Book, BookDTO> {
 
 	@Autowired
@@ -75,11 +77,11 @@ public class BookService implements DAOInterface<Book, BookDTO> {
 		if (book.getStock() < 0) {
 			throw new IllegalArgumentException("El strocl no puede ser menor a cero.");
 		}
-		if(book.getTitle() == null || book.getIsbn().isEmpty()) {
+		if (book.getTitle() == null || book.getIsbn().isEmpty()) {
 			throw new IllegalArgumentException("El título del libro es obligatorio.");
 		}
 	}
-	
+
 	private Book validateBookToUpdate(Book book) {
 		if (book.getAutor() != null && !book.getAutor().isEmpty()) {
 			book.setAutor(book.getAutor());

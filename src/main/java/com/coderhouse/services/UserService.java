@@ -3,6 +3,7 @@ package com.coderhouse.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.coderhouse.dtos.UserDTO;
 import com.coderhouse.interfaces.DAOInterface;
@@ -11,6 +12,7 @@ import com.coderhouse.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
 
+@Service
 public class UserService implements DAOInterface<User, UserDTO> {
 
 	@Autowired
@@ -43,10 +45,23 @@ public class UserService implements DAOInterface<User, UserDTO> {
 	@Override
 	@Transactional
 	public UserDTO update(Long id, User object) throws Exception {
-		User user = getUserById(id);
-		userRepository.save(validateUserToUpdate(user));
-		return convertToDTO(user);
+	    User user = getUserById(id);
+
+	    if (object.getEmail() != null && !object.getEmail().isEmpty()) {
+	        user.setEmail(object.getEmail());
+	    }
+	    if (object.getName() != null && !object.getName().isEmpty()) {
+	        user.setName(object.getName());
+	    }
+	    if (object.getPhone() != null && !object.getPhone().isEmpty()) {
+	        user.setPhone(object.getPhone());
+	    }
+
+	    User updatedUser = userRepository.save(user);
+
+	    return convertToDTO(updatedUser);
 	}
+
 
 	@Override
 	@Transactional
@@ -71,19 +86,7 @@ public class UserService implements DAOInterface<User, UserDTO> {
 		}
 	}
 
-	private User validateUserToUpdate(User user) {
-		if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-			user.setEmail(user.getEmail());
-		}
-		if (user.getName() != null && !user.getName().isEmpty()) {
-			user.setName(user.getName());
-		}
-		if (user.getPhone() != null && !user.getPhone().isEmpty()) {
-			user.setPhone(user.getPhone());
-		}
-
-		return user;
-	}
+	
 
 	private UserDTO convertToDTO(User user) {
 		UserDTO userDTO = new UserDTO();

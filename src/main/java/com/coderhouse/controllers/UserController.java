@@ -51,6 +51,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    @PostMapping("/{userId}/loan/{bookId}")
+    public ResponseEntity<UserDTO> createLoan(@PathVariable Long bookId, @PathVariable Long userId) {
+    	try {
+    		UserDTO updatedUser = userService.newLoan(userId, bookId);
+    		 return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser);
+    	} catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User user) {

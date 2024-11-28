@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.coderhouse.dtos.UserDTO;
 import com.coderhouse.interfaces.DAOInterface;
+import com.coderhouse.models.Loan;
 import com.coderhouse.models.User;
 import com.coderhouse.repositories.UserRepository;
 
@@ -17,6 +18,9 @@ public class UserService implements DAOInterface<User, UserDTO> {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private LoanService loanService;
 
 	@Override
 	public List<UserDTO> getAll() {
@@ -73,6 +77,24 @@ public class UserService implements DAOInterface<User, UserDTO> {
 		userRepository.deleteById(id);
 
 	}
+	
+	public UserDTO newLoan(Long userId, Long bookId) {
+		User user = getUserById(userId);
+	    Loan newLoan = loanService.newLoan(bookId);
+
+	    newLoan.setUser(user);
+	    
+	    user.getLoans().add(newLoan);
+	    
+	    newLoan.setUser(user);
+	    
+	    userRepository.save(user);
+	    
+	    
+	    
+	    return convertToDTO(user);
+	}
+
 
 	private void validateMandatoryFields(User user) {
 		if (user.getEmail() == null || user.getEmail().isEmpty()) {

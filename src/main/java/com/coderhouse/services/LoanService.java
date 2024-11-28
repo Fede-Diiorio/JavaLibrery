@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.coderhouse.dtos.LoanDTO;
 import com.coderhouse.models.Book;
 import com.coderhouse.models.Loan;
-import com.coderhouse.models.User;
 import com.coderhouse.repositories.LoanRepository;
 
 @Service
@@ -17,9 +16,6 @@ public class LoanService {
 
 	@Autowired
 	private LoanRepository loanRepository;
-
-	@Autowired
-	private UserService userService;
 
 	@Autowired
 	private BookService bookService;
@@ -44,24 +40,12 @@ public class LoanService {
 		return convertToDTO(savedLoan);
 	}
 
-	public LoanDTO update(Long id, Loan object) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public Loan newLoan(Loan loan, Long bookId, User userId) {
+	public Loan newLoan(Long bookId) {
 
 		Book book = bookService.getBookbyId(bookId);
-		User user = userService.getUserById(bookId);
 		Loan newLoan = new Loan();
 		
 		newLoan.setBook(book);
-		newLoan.setUser(user);
 		newLoan.setLoanDate(LocalDateTime.now());
 		
 		return newLoan;

@@ -86,8 +86,6 @@ public class UserService implements DAOInterface<User, UserDTO> {
 		}
 	}
 
-	
-
 	private UserDTO convertToDTO(User user) {
 		UserDTO userDTO = new UserDTO();
 

@@ -41,9 +41,24 @@ public class BookService implements DAOInterface<Book, BookDTO> {
 	@Override
 	@Transactional
 	public BookDTO update(Long id, Book object) throws Exception {
+
 		Book book = getBookbyId(id);
-		bookRepository.save(validateBookToUpdate(book));
-		return convertToDTO(book);
+
+		if (object.getAutor() != null && !object.getAutor().isEmpty()) {
+			book.setAutor(object.getAutor());
+		}
+		if (object.getIsbn() != null && !object.getIsbn().isEmpty()) {
+			book.setIsbn(object.getIsbn());
+		}
+		if (object.getStock() < 0) {
+			book.setStock(object.getStock());
+		}
+		if (object.getTitle() != null && !object.getTitle().isEmpty()) {
+			book.setTitle(object.getTitle());
+		}
+
+		Book updatedBook = bookRepository.save(book);
+		return convertToDTO(updatedBook);
 	}
 
 	@Override
@@ -80,23 +95,6 @@ public class BookService implements DAOInterface<Book, BookDTO> {
 		if (book.getTitle() == null || book.getIsbn().isEmpty()) {
 			throw new IllegalArgumentException("El título del libro es obligatorio.");
 		}
-	}
-
-	private Book validateBookToUpdate(Book book) {
-		if (book.getAutor() != null && !book.getAutor().isEmpty()) {
-			book.setAutor(book.getAutor());
-		}
-		if (book.getIsbn() != null && !book.getIsbn().isEmpty()) {
-			book.setIsbn(book.getIsbn());
-		}
-		if (book.getStock() < 0) {
-			book.setStock(book.getStock());
-		}
-		if (book.getTitle() != null && !book.getTitle().isEmpty()) {
-			book.setTitle(book.getTitle());
-		}
-
-		return book;
 	}
 
 }

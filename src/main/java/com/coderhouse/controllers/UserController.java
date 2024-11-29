@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.coderhouse.dtos.UserDTO;
+import com.coderhouse.models.Loan;
 import com.coderhouse.models.User;
+import com.coderhouse.services.LoanService;
 import com.coderhouse.services.UserService;
 
 @RestController
@@ -17,6 +19,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private LoanService loanService;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -39,6 +44,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    @GetMapping("/{id}/test")
+    public ResponseEntity<User> getUserByIdTest(@PathVariable Long id) {
+        try {
+            User user = userService.getUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody User user) {
@@ -53,16 +70,28 @@ public class UserController {
     }
     
     @PostMapping("/{userId}/loan/{bookId}")
-    public ResponseEntity<UserDTO> createLoan(@PathVariable Long bookId, @PathVariable Long userId) {
+    public ResponseEntity<Loan> createLoan(@PathVariable Long userId, @PathVariable Long bookId) {
     	try {
-    		UserDTO updatedUser = userService.newLoan(userId, bookId);
-    		 return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser);
+    		Loan loan = loanService.createNewLoan(bookId, userId);
+    		 return ResponseEntity.status(HttpStatus.CREATED).body(loan);
     	} catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    @PutMapping("/{userId}/loan/{bookId}")
+    public ResponseEntity<Loan> createReturn(@PathVariable Long userId, @PathVariable Long bookId) {
+    	try {
+    		Loan loan = loanService.newReturn(bookId, userId);
+    		return ResponseEntity.status(HttpStatus.CREATED).body(loan);
+    	} catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    } 
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody User user) {

@@ -43,7 +43,7 @@ public class LoanService {
 		return convertToDTO(user, loans);
 	}
 
-	public Loan createNewLoan(Long bookId, Long userId) {
+	public Loan createNewLoan(Long userId, Long bookId) {
 
 		User user = userService.getUserById(userId);
 		Book book = bookService.getBookbyId(bookId);

@@ -1,7 +1,5 @@
 package com.coderhouse.dtos;
 
-import java.time.LocalDateTime;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class LoanDTO {
 
-	private LocalDateTime loanDate;
-	private LocalDateTime returnDate;
+	private String loanDate;
+	private String returnDate;
 	private String bookName;
 }
 

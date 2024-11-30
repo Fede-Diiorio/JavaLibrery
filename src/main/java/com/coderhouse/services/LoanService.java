@@ -1,10 +1,13 @@
 package com.coderhouse.services;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.coderhouse.dtos.LoanDTO;
 import com.coderhouse.models.Book;
 import com.coderhouse.models.Loan;
 import com.coderhouse.models.User;
@@ -21,6 +24,11 @@ public class LoanService {
 
 	@Autowired
 	private BookService bookService;
+	
+	public List<LoanDTO> getAll() {
+		List<Loan> loans = loanRepository.findAll();
+		return loans.stream().map(this::convertToDTO).toList();
+	}
 
 	public Loan createNewLoan(Long bookId, Long userId) {
 		
@@ -47,6 +55,27 @@ public class LoanService {
 		loanRepository.save(loan);
 		
 		return loan;
+	}
+	
+	private LoanDTO convertToDTO(Loan loan) {
+		LoanDTO loanDTO = new LoanDTO();
+		
+		Book book = bookService.getBookbyId(loan.getId());
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String formattedLoan = loan.getLoanDate().format(formatter);
+		loanDTO.setLoanDate(formattedLoan);
+		
+		loanDTO.setBookName(book.getTitle());
+		
+		if(loan.getReturnDate() != null) {
+			String fromattedReturn = loan.getReturnDate().format(formatter);
+			loanDTO.setReturnDate(fromattedReturn);
+		} else {
+			loanDTO.setReturnDate("libro-sin-devolver");
+		}
+		
+		return loanDTO;
 	}
 
 }

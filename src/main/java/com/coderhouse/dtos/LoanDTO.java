@@ -10,6 +10,7 @@ public class LoanDTO {
 	private String loanDate;
 	private String returnDate;
 	private String bookName;
+	private Long BookId;
 }
 
 

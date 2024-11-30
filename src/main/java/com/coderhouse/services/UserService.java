@@ -23,6 +23,10 @@ public class UserService implements DAOInterface<User, UserDTO> {
 		List<User> users = userRepository.findAll();
 		return users.stream().map(this::convertToDTO).toList();
 	}
+	
+	public List<User> getUserById() {
+		return userRepository.findAll();
+	}
 
 	@Override
 	public UserDTO getById(Long id) {

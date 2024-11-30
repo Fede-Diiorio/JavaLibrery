@@ -14,6 +14,8 @@ import com.coderhouse.models.Loan;
 import com.coderhouse.models.User;
 import com.coderhouse.repositories.LoanRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class LoanService {
 
@@ -43,6 +45,7 @@ public class LoanService {
 		return convertToDTO(user, loans);
 	}
 
+	@Transactional
 	public Loan createNewLoan(Long userId, Long bookId) {
 
 	    User user = userService.getUserById(userId); 
@@ -52,6 +55,14 @@ public class LoanService {
 
 	    if (activeLoan != null) {
 	        throw new IllegalArgumentException("Ya tiene este libro en préstamo.");
+	    }
+	    
+	    int stock = (book.getStock() - 1);
+	    if (stock >= 0) {
+	    	book.setStock(stock);
+	    	bookService.save(book);
+	    } else {
+	    	throw new IllegalArgumentException("El libro no está disponible en este momento.");
 	    }
 
 	    Loan newLoan = new Loan();
@@ -65,12 +76,21 @@ public class LoanService {
 	}
 
 
-
+	@Transactional
 	public Loan newReturn(Long bookId, Long userId) {
 		Loan loan = loanRepository.findByUser_IdAndBook_IdAndReturnDateIsNull(userId, bookId);
+		
+		if (loan == null) {
+	        throw new IllegalArgumentException("No existe un préstamo activo para este libro y usuario.");
+	    }
 
+		Book book = bookService.getBookbyId(bookId);
+		
+		book.setStock(book.getStock() + 1);
+		
+		bookService.save(book);
+		
 		loan.setReturnDate(LocalDateTime.now());
-
 		loanRepository.save(loan);
 
 		return loan;

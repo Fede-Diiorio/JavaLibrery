@@ -30,7 +30,7 @@ public class LoanService {
 		List<Loan> loans = loanRepository.findAll();
 		return loans.stream().map(this::convertToDTO).toList();
 	}
-	
+
 	private List<LoanDTO> getAllByUser(Long id) {
 		List<Loan> loans = loanRepository.findByUser_Id(id);
 		return loans.stream().map(this::convertToDTO).toList();
@@ -39,29 +39,35 @@ public class LoanService {
 	public UserLoanDTO getUserById(Long id) {
 		User user = userService.getUserById(id);
 		List<LoanDTO> loans = getAllByUser(id);
-		
+
 		return convertToDTO(user, loans);
 	}
 
 	public Loan createNewLoan(Long userId, Long bookId) {
 
-		User user = userService.getUserById(userId);
-		Book book = bookService.getBookbyId(bookId);
+	    User user = userService.getUserById(userId); 
+	    Book book = bookService.getBookbyId(bookId); 
 
-		Loan loan = new Loan();
+	    Loan activeLoan = loanRepository.findByUser_IdAndBook_IdAndReturnDateIsNull(userId, bookId);
 
-		loan.setBook(book);
-		loan.setUser(user);
-		loan.setLoanDate(LocalDateTime.now());
+	    if (activeLoan != null) {
+	        throw new IllegalArgumentException("Ya tiene este libro en préstamo.");
+	    }
 
-		loanRepository.save(loan);
+	    Loan newLoan = new Loan();
+	    newLoan.setBook(book);
+	    newLoan.setUser(user);
+	    newLoan.setLoanDate(LocalDateTime.now());
 
-		return loan;
+	    loanRepository.save(newLoan);
 
+	    return newLoan;
 	}
 
+
+
 	public Loan newReturn(Long bookId, Long userId) {
-		Loan loan = loanRepository.findByUser_IdAndBook_Id(userId, bookId);
+		Loan loan = loanRepository.findByUser_IdAndBook_IdAndReturnDateIsNull(userId, bookId);
 
 		loan.setReturnDate(LocalDateTime.now());
 
@@ -73,7 +79,7 @@ public class LoanService {
 	private LoanDTO convertToDTO(Loan loan) {
 		LoanDTO loanDTO = new LoanDTO();
 
-		Book book = bookService.getBookbyId(loan.getId());
+		Book book = bookService.getBookbyId(loan.getBook().getId());
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		String formattedLoan = loan.getLoanDate().format(formatter);

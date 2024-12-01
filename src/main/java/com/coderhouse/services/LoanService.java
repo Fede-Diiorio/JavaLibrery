@@ -77,7 +77,7 @@ public class LoanService {
 	}
 
 	@Transactional
-	public Loan newReturn(Long bookId, Long userId) {
+	public LoanDTO newReturn(Long bookId, Long userId) {
 		Loan loan = loanRepository.findByUser_IdAndBook_IdAndReturnDateIsNull(userId, bookId);
 		
 		if (loan == null) {
@@ -93,7 +93,7 @@ public class LoanService {
 		loan.setReturnDate(LocalDateTime.now());
 		loanRepository.save(loan);
 
-		return loan;
+		return convertToDTO(loan);
 	}
 
 	private LoanDTO convertToDTO(Loan loan) {

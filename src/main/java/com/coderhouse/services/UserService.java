@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.coderhouse.dtos.UserDTO;
 import com.coderhouse.interfaces.DAOInterface;
+import com.coderhouse.mappers.UserMapper;
 import com.coderhouse.models.User;
 import com.coderhouse.repositories.UserRepository;
 
@@ -18,12 +19,15 @@ public class UserService implements DAOInterface<User, UserDTO> {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private UserMapper userMapper;
+
 	@Override
 	public List<UserDTO> getAll() {
 		List<User> users = userRepository.findAll();
-		return users.stream().map(this::convertToDTO).toList();
+		return users.stream().map(userMapper::toDTO).toList();
 	}
-	
+
 	public List<User> getUserById() {
 		return userRepository.findAll();
 	}
@@ -31,7 +35,7 @@ public class UserService implements DAOInterface<User, UserDTO> {
 	@Override
 	public UserDTO getById(Long id) {
 		User user = getUserById(id);
-		return convertToDTO(user);
+		return userMapper.toDTO(user);
 	}
 
 	public User getUserById(Long id) {
@@ -40,32 +44,31 @@ public class UserService implements DAOInterface<User, UserDTO> {
 
 	@Override
 	@Transactional
-	public UserDTO save(User object ) {
+	public UserDTO save(User object) {
 		User savedUser = userRepository.save(object);
 		validateMandatoryFields(savedUser);
-		return convertToDTO(savedUser);
+		return userMapper.toDTO(savedUser);
 	}
 
 	@Override
 	@Transactional
 	public UserDTO update(Long id, User object) throws Exception {
-	    User user = getUserById(id);
+		User user = getUserById(id);
 
-	    if (object.getEmail() != null && !object.getEmail().isEmpty()) {
-	        user.setEmail(object.getEmail());
-	    }
-	    if (object.getName() != null && !object.getName().isEmpty()) {
-	        user.setName(object.getName());
-	    }
-	    if (object.getPhone() != null && !object.getPhone().isEmpty()) {
-	        user.setPhone(object.getPhone());
-	    }
+		if (object.getEmail() != null && !object.getEmail().isEmpty()) {
+			user.setEmail(object.getEmail());
+		}
+		if (object.getName() != null && !object.getName().isEmpty()) {
+			user.setName(object.getName());
+		}
+		if (object.getPhone() != null && !object.getPhone().isEmpty()) {
+			user.setPhone(object.getPhone());
+		}
 
-	    User updatedUser = userRepository.save(user);
+		User updatedUser = userRepository.save(user);
 
-	    return convertToDTO(updatedUser);
+		return userMapper.toDTO(updatedUser);
 	}
-
 
 	@Override
 	@Transactional
@@ -77,7 +80,7 @@ public class UserService implements DAOInterface<User, UserDTO> {
 		userRepository.deleteById(id);
 
 	}
-	
+
 	private void validateMandatoryFields(User user) {
 		if (user.getEmail() == null || user.getEmail().isEmpty()) {
 			throw new IllegalArgumentException("El email del usuario es olbigatorio.");
@@ -90,16 +93,6 @@ public class UserService implements DAOInterface<User, UserDTO> {
 		}
 	}
 
-	private UserDTO convertToDTO(User user) {
-		UserDTO userDTO = new UserDTO();
-
-		userDTO.setEmail(user.getEmail());
-		userDTO.setId(user.getId());
-		userDTO.setName(user.getName());
-		userDTO.setPhone(user.getPhone());
-
-		return userDTO;
-
-	}
+	
 
 }

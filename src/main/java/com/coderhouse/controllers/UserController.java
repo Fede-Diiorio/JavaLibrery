@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.coderhouse.dtos.LoanDTO;
 import com.coderhouse.dtos.UserBookLoanDTO;
 import com.coderhouse.dtos.UserDTO;
 import com.coderhouse.dtos.UserLoanDTO;
-import com.coderhouse.models.Loan;
 import com.coderhouse.models.User;
 import com.coderhouse.services.LoanService;
 import com.coderhouse.services.UserService;
@@ -72,9 +72,9 @@ public class UserController {
     }
     
     @PutMapping("/{userId}/loan/{bookId}")
-    public ResponseEntity<Loan> createReturn(@PathVariable Long userId, @PathVariable Long bookId) {
+    public ResponseEntity<LoanDTO> createReturn(@PathVariable Long userId, @PathVariable Long bookId) {
     	try {
-    		Loan loan = loanService.newReturn(bookId, userId);
+    		LoanDTO loan = loanService.newReturn(bookId, userId);
     		return ResponseEntity.status(HttpStatus.CREATED).body(loan);
     	} catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);

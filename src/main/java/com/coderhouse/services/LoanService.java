@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.coderhouse.dtos.LoanDTO;
+import com.coderhouse.dtos.UserBookLoanDTO;
 import com.coderhouse.dtos.UserLoanDTO;
 import com.coderhouse.models.Book;
 import com.coderhouse.models.Loan;
@@ -28,9 +29,9 @@ public class LoanService {
 	@Autowired
 	private BookService bookService;
 
-	public List<LoanDTO> getAll() {
+	public List<UserBookLoanDTO> getAll() {
 		List<Loan> loans = loanRepository.findAll();
-		return loans.stream().map(this::convertToDTO).toList();
+		return loans.stream().map(this::newLoanToDTO).toList();
 	}
 
 	private List<LoanDTO> getAllByUser(Long id) {
@@ -46,7 +47,7 @@ public class LoanService {
 	}
 
 	@Transactional
-	public Loan createNewLoan(Long userId, Long bookId) {
+	public UserBookLoanDTO createNewLoan(Long userId, Long bookId) {
 
 	    User user = userService.getUserById(userId); 
 	    Book book = bookService.getBookbyId(bookId); 
@@ -72,9 +73,8 @@ public class LoanService {
 
 	    loanRepository.save(newLoan);
 
-	    return newLoan;
+	    return newLoanToDTO(newLoan);
 	}
-
 
 	@Transactional
 	public Loan newReturn(Long bookId, Long userId) {
@@ -130,5 +130,25 @@ public class LoanService {
 		return userLoanDTO;
 
 	}
+	
+	private UserBookLoanDTO newLoanToDTO(Loan loan)  {
+		UserBookLoanDTO newLoan = new UserBookLoanDTO();
+		
+		newLoan.setBookId(loan.getBook().getId());
+		newLoan.setBookName(loan.getBook().getTitle());
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String formattedLoan = loan.getLoanDate().format(formatter);
+		newLoan.setLoanDate(formattedLoan);
+		
+		newLoan.setUserId(loan.getUser().getId());
+		newLoan.setUserName(loan.getUser().getName());
+		
+		return newLoan;
+	}
 
+	public List<UserBookLoanDTO> getAllNoReturn() {
+		List<Loan> loans = loanRepository.findByReturnDateIsNull();
+		return loans.stream().map(this::newLoanToDTO).toList();
+	}
 }

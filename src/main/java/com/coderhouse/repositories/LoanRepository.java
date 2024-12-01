@@ -8,10 +8,10 @@ import com.coderhouse.models.Loan;
 
 public interface LoanRepository extends JpaRepository<Loan, Long>{
 
-	Loan findByUser_IdAndBook_Id(Long userId, Long bookId);
-	
 	List<Loan> findByUser_Id(Long userId);
 	
 	Loan findByUser_IdAndBook_IdAndReturnDateIsNull(Long userId, Long bookId);
+	
+	List<Loan> findByReturnDateIsNull();
 	
 }

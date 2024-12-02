@@ -1,7 +1,6 @@
 package com.coderhouse.services;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.coderhouse.dtos.LoanDTO;
 import com.coderhouse.dtos.UserBookLoanDTO;
 import com.coderhouse.dtos.UserLoanDTO;
+import com.coderhouse.mappers.LoanMapper;
 import com.coderhouse.models.Book;
 import com.coderhouse.models.Loan;
 import com.coderhouse.models.User;
@@ -28,22 +28,30 @@ public class LoanService {
 
 	@Autowired
 	private BookService bookService;
+	
+	@Autowired
+	private LoanMapper loanMapper;
 
 	public List<UserBookLoanDTO> getAll() {
 		List<Loan> loans = loanRepository.findAll();
-		return loans.stream().map(this::newLoanToDTO).toList();
+		return loans.stream().map(loanMapper::toUserBookLoanDTO).toList();
 	}
 
 	private List<LoanDTO> getAllByUser(Long id) {
 		List<Loan> loans = loanRepository.findByUser_Id(id);
-		return loans.stream().map(this::convertToDTO).toList();
+		return loans.stream().map(loanMapper::ToDTO).toList();
 	}
 
 	public UserLoanDTO getUserById(Long id) {
 		User user = userService.getUserById(id);
 		List<LoanDTO> loans = getAllByUser(id);
 
-		return convertToDTO(user, loans);
+		return loanMapper.ToUserLoanDTO(user, loans);
+	}
+	
+	public List<UserBookLoanDTO> getAllNoReturn() {
+		List<Loan> loans = loanRepository.findByReturnDateIsNull();
+		return loans.stream().map(loanMapper::toUserBookLoanDTO).toList();
 	}
 
 	@Transactional
@@ -73,7 +81,7 @@ public class LoanService {
 
 	    loanRepository.save(newLoan);
 
-	    return newLoanToDTO(newLoan);
+	    return loanMapper.toUserBookLoanDTO(newLoan);
 	}
 
 	@Transactional
@@ -93,62 +101,9 @@ public class LoanService {
 		loan.setReturnDate(LocalDateTime.now());
 		loanRepository.save(loan);
 
-		return convertToDTO(loan);
+		return loanMapper.ToDTO(loan);
 	}
 
-	private LoanDTO convertToDTO(Loan loan) {
-		LoanDTO loanDTO = new LoanDTO();
 
-		Book book = bookService.getBookbyId(loan.getBook().getId());
-
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		String formattedLoan = loan.getLoanDate().format(formatter);
-		loanDTO.setLoanDate(formattedLoan);
-
-		loanDTO.setBookName(book.getTitle());
-		loanDTO.setBookId(book.getId());
-
-		if (loan.getReturnDate() != null) {
-			String fromattedReturn = loan.getReturnDate().format(formatter);
-			loanDTO.setReturnDate(fromattedReturn);
-		} else {
-			loanDTO.setReturnDate("libro-sin-devolver");
-		}
-
-		return loanDTO;
-	}
-
-	private UserLoanDTO convertToDTO(User user, List<LoanDTO> loans) {
-		UserLoanDTO userLoanDTO = new UserLoanDTO();
-
-		userLoanDTO.setEmail(user.getEmail());
-		userLoanDTO.setId(user.getId());
-		userLoanDTO.setName(user.getName());
-		userLoanDTO.setPhone(user.getPhone());
-		userLoanDTO.setLoans(loans);
-
-		return userLoanDTO;
-
-	}
 	
-	private UserBookLoanDTO newLoanToDTO(Loan loan)  {
-		UserBookLoanDTO newLoan = new UserBookLoanDTO();
-		
-		newLoan.setBookId(loan.getBook().getId());
-		newLoan.setBookName(loan.getBook().getTitle());
-		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		String formattedLoan = loan.getLoanDate().format(formatter);
-		newLoan.setLoanDate(formattedLoan);
-		
-		newLoan.setUserId(loan.getUser().getId());
-		newLoan.setUserName(loan.getUser().getName());
-		
-		return newLoan;
-	}
-
-	public List<UserBookLoanDTO> getAllNoReturn() {
-		List<Loan> loans = loanRepository.findByReturnDateIsNull();
-		return loans.stream().map(this::newLoanToDTO).toList();
-	}
 }
